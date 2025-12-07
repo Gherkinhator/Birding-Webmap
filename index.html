@@ -8,9 +8,12 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="css/leaflet.css">
         <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
         <link rel="stylesheet" href="css/qgis2web.css">
         <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
         <link rel="stylesheet" href="css/leaflet.photon.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
         <style>
         html, body, #map {
             width: 100%;
@@ -27,6 +30,7 @@
         <script src="js/qgis2web_expressions.js"></script>
         <script src="js/leaflet.js"></script>
         <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
         <script src="js/leaflet.rotatedMarker.js"></script>
         <script src="js/leaflet.pattern.js"></script>
         <script src="js/leaflet-hash.js"></script>
@@ -35,15 +39,18 @@
         <script src="js/labelgun.min.js"></script>
         <script src="js/labels.js"></script>
         <script src="js/leaflet.photon.js"></script>
-        <script src="data/1kGrid_2.js"></script>
-        <script src="data/TownBoundary_3.js"></script>
-        <script src="data/checklist_4.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="data/PROW_2.js"></script>
+        <script src="data/2kGrid_3.js"></script>
+        <script src="data/1kGrid_4.js"></script>
+        <script src="data/TownBoundary_5.js"></script>
         <script>
         var map = L.map('map', {
             zoomControl:false, maxZoom:28, minZoom:1
-        }).fitBounds([[51.016618023945924,0.9913220347964364],[51.13724155932043,1.2911890318119228]]);
+        }).fitBounds([[51.02845173715442,1.0040055530955279],[51.12503294665322,1.2787232651666145]]);
         var hash = new L.Hash(map);
-        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank"></a><a href="https://www.brizey.co.uk/">Map by Brizey.co.uk</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
         // remove popup's row if "visible-with-data"
         function removeEmptyRowsFromPopupContent(content, feature) {
@@ -109,6 +116,17 @@
         var zoomControl = L.control.zoom({
             position: 'topleft'
         }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
         var bounds_group = new L.featureGroup([]);
         function setBounds() {
         }
@@ -138,7 +156,164 @@
         });
         layer_GoogleMaps_1;
         map.addLayer(layer_GoogleMaps_1);
-        function pop_1kGrid_2(feature, layer) {
+        function pop_PROW_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID_1'] !== null ? autolinker.link(String(feature.properties['OBJECTID_1']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(String(feature.properties['OBJECTID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PATHNUMBER'] !== null ? autolinker.link(String(feature.properties['PATHNUMBER']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DESCRIPTIO'] !== null ? autolinker.link(String(feature.properties['DESCRIPTIO']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Shape_STLe'] !== null ? autolinker.link(String(feature.properties['Shape_STLe']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Shape_Leng'] !== null ? autolinker.link(String(feature.properties['Shape_Leng']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Shape_Length'] !== null ? autolinker.link(String(feature.properties['Shape_Length']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_PROW_2_0(feature) {
+            switch(String(feature.properties['DESCRIPTIO'])) {
+                case 'Byway Open to All Traffic':
+                    return {
+                pane: 'pane_PROW_2',
+                opacity: 1,
+                color: 'rgba(203,116,20,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case 'Coastal Footpath':
+                    return {
+                pane: 'pane_PROW_2',
+                opacity: 1,
+                color: 'rgba(102,54,215,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case 'Public Bridleway':
+                    return {
+                pane: 'pane_PROW_2',
+                opacity: 1,
+                color: 'rgba(43,131,186,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case 'Public Footpath':
+                    return {
+                pane: 'pane_PROW_2',
+                opacity: 1,
+                color: 'rgba(84,176,74,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case 'Restricted Byway':
+                    return {
+                pane: 'pane_PROW_2',
+                opacity: 1,
+                color: 'rgba(8,41,219,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_PROW_2');
+        map.getPane('pane_PROW_2').style.zIndex = 402;
+        map.getPane('pane_PROW_2').style['mix-blend-mode'] = 'normal';
+        var layer_PROW_2 = new L.geoJson(json_PROW_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_PROW_2',
+            layerName: 'layer_PROW_2',
+            pane: 'pane_PROW_2',
+            onEachFeature: pop_PROW_2,
+            style: style_PROW_2_0,
+        });
+        bounds_group.addLayer(layer_PROW_2);
+        map.addLayer(layer_PROW_2);
+        function pop_2kGrid_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td class="visible-with-data" id="Id" colspan="2"><strong>Id</strong><br />' + (feature.properties['Id'] !== null ? autolinker.link(String(feature.properties['Id']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['grid_ref'] !== null ? autolinker.link(String(feature.properties['grid_ref']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_2kGrid_3_0() {
+            return {
+                pane: 'pane_2kGrid_3',
+                opacity: 1,
+                color: 'rgba(0,0,255,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_2kGrid_3');
+        map.getPane('pane_2kGrid_3').style.zIndex = 403;
+        map.getPane('pane_2kGrid_3').style['mix-blend-mode'] = 'normal';
+        var layer_2kGrid_3 = new L.geoJson(json_2kGrid_3, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_2kGrid_3',
+            layerName: 'layer_2kGrid_3',
+            pane: 'pane_2kGrid_3',
+            onEachFeature: pop_2kGrid_3,
+            style: style_2kGrid_3_0,
+        });
+        bounds_group.addLayer(layer_2kGrid_3);
+        map.addLayer(layer_2kGrid_3);
+        function pop_1kGrid_4(feature, layer) {
             var popupContent = '<table>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
@@ -148,36 +323,36 @@
 			layer.bindPopup(content, { maxHeight: 400 });
         }
 
-        function style_1kGrid_2_0() {
+        function style_1kGrid_4_0() {
             return {
-                pane: 'pane_1kGrid_2',
+                pane: 'pane_1kGrid_4',
                 opacity: 1,
                 color: 'rgba(1,165,26,1.0)',
                 dashArray: '',
                 lineCap: 'butt',
                 lineJoin: 'miter',
-                weight: 1.0, 
+                weight: 1.0,
                 fill: true,
                 fillOpacity: 1,
                 fillColor: 'rgba(125,139,143,0.0)',
                 interactive: false,
             }
         }
-        map.createPane('pane_1kGrid_2');
-        map.getPane('pane_1kGrid_2').style.zIndex = 402;
-        map.getPane('pane_1kGrid_2').style['mix-blend-mode'] = 'normal';
-        var layer_1kGrid_2 = new L.geoJson(json_1kGrid_2, {
+        map.createPane('pane_1kGrid_4');
+        map.getPane('pane_1kGrid_4').style.zIndex = 404;
+        map.getPane('pane_1kGrid_4').style['mix-blend-mode'] = 'normal';
+        var layer_1kGrid_4 = new L.geoJson(json_1kGrid_4, {
             attribution: '',
             interactive: false,
-            dataVar: 'json_1kGrid_2',
-            layerName: 'layer_1kGrid_2',
-            pane: 'pane_1kGrid_2',
-            onEachFeature: pop_1kGrid_2,
-            style: style_1kGrid_2_0,
+            dataVar: 'json_1kGrid_4',
+            layerName: 'layer_1kGrid_4',
+            pane: 'pane_1kGrid_4',
+            onEachFeature: pop_1kGrid_4,
+            style: style_1kGrid_4_0,
         });
-        bounds_group.addLayer(layer_1kGrid_2);
-        map.addLayer(layer_1kGrid_2);
-        function pop_TownBoundary_3(feature, layer) {
+        bounds_group.addLayer(layer_1kGrid_4);
+        map.addLayer(layer_1kGrid_4);
+        function pop_TownBoundary_5(feature, layer) {
             var popupContent = '<table>\
                     <tr>\
                         <td colspan="2">' + (feature.properties['Town'] !== null ? autolinker.link(String(feature.properties['Town']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
@@ -190,373 +365,40 @@
 			layer.bindPopup(content, { maxHeight: 400 });
         }
 
-        function style_TownBoundary_3_0() {
+        function style_TownBoundary_5_0() {
             return {
-                pane: 'pane_TownBoundary_3',
+                pane: 'pane_TownBoundary_5',
                 opacity: 1,
                 color: 'rgba(251,0,0,1.0)',
                 dashArray: '',
                 lineCap: 'butt',
                 lineJoin: 'miter',
-                weight: 3.0, 
+                weight: 3.0,
                 fill: true,
                 fillOpacity: 1,
                 fillColor: 'rgba(232,113,141,0.0)',
-                interactive: true,
+                interactive: false,
             }
         }
-        map.createPane('pane_TownBoundary_3');
-        map.getPane('pane_TownBoundary_3').style.zIndex = 403;
-        map.getPane('pane_TownBoundary_3').style['mix-blend-mode'] = 'normal';
-        var layer_TownBoundary_3 = new L.geoJson(json_TownBoundary_3, {
+        map.createPane('pane_TownBoundary_5');
+        map.getPane('pane_TownBoundary_5').style.zIndex = 405;
+        map.getPane('pane_TownBoundary_5').style['mix-blend-mode'] = 'normal';
+        var layer_TownBoundary_5 = new L.geoJson(json_TownBoundary_5, {
             attribution: '',
-            interactive: true,
-            dataVar: 'json_TownBoundary_3',
-            layerName: 'layer_TownBoundary_3',
-            pane: 'pane_TownBoundary_3',
-            onEachFeature: pop_TownBoundary_3,
-            style: style_TownBoundary_3_0,
+            interactive: false,
+            dataVar: 'json_TownBoundary_5',
+            layerName: 'layer_TownBoundary_5',
+            pane: 'pane_TownBoundary_5',
+            onEachFeature: pop_TownBoundary_5,
+            style: style_TownBoundary_5_0,
         });
-        bounds_group.addLayer(layer_TownBoundary_3);
-        map.addLayer(layer_TownBoundary_3);
-        function pop_checklist_4(feature, layer) {
-            var popupContent = '<table>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['Name'] !== null ? autolinker.link(String(feature.properties['Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['Max Count'] !== null ? autolinker.link(String(feature.properties['Max Count']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['When Seen'] !== null ? autolinker.link(String(feature.properties['When Seen']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['Location'] !== null ? autolinker.link(String(feature.properties['Location']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                </table>';
-            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-			layer.on('popupopen', function(e) {
-				addClassToPopupIfMedia(content, e.popup);
-			});
-			layer.bindPopup(content, { maxHeight: 400 });
-        }
-
-        function style_checklist_4_0(feature) {
-            switch(String(feature.properties['Name'])) {
-                default:
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(94,211,189,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Blackcap':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Blue Tit':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Bullfinch':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Chaffinch':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Chiffchaff':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Cormorant':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Fieldfare':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Goldcrest':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Great Spotted Woodpecker':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Great Tit':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Pied Wagtail':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Raven':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(215,25,28,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Redwing':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Rook':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Song Thrush':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Sparrowhawk':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-                case 'Swallow':
-                    return {
-                pane: 'pane_checklist_4',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,0,255,1.0)',
-                interactive: true,
-            }
-                    break;
-            }
-        }
-        map.createPane('pane_checklist_4');
-        map.getPane('pane_checklist_4').style.zIndex = 404;
-        map.getPane('pane_checklist_4').style['mix-blend-mode'] = 'normal';
-        var layer_checklist_4 = new L.geoJson(json_checklist_4, {
-            attribution: '',
-            interactive: true,
-            dataVar: 'json_checklist_4',
-            layerName: 'layer_checklist_4',
-            pane: 'pane_checklist_4',
-            onEachFeature: pop_checklist_4,
-            pointToLayer: function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.circleMarker(latlng, style_checklist_4_0(feature));
-            },
-        });
-        bounds_group.addLayer(layer_checklist_4);
-        map.addLayer(layer_checklist_4);
+        bounds_group.addLayer(layer_TownBoundary_5);
+        map.addLayer(layer_TownBoundary_5);
         var overlaysTree = [
-            {label: 'checklist<br /><table><tr><td style="text-align: center;"><img src="legend/checklist_4_0.png" /></td><td></td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_Blackcap1.png" /></td><td>Blackcap</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_BlueTit2.png" /></td><td>Blue Tit</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_Bullfinch3.png" /></td><td>Bullfinch</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_Chaffinch4.png" /></td><td>Chaffinch</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_Chiffchaff5.png" /></td><td>Chiffchaff</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_Cormorant6.png" /></td><td>Cormorant</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_Fieldfare7.png" /></td><td>Fieldfare</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_Goldcrest8.png" /></td><td>Goldcrest</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_GreatSpottedWoodpecker9.png" /></td><td>Great Spotted Woodpecker</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_GreatTit10.png" /></td><td>Great Tit</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_PiedWagtail11.png" /></td><td>Pied Wagtail</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_Raven12.png" /></td><td>Raven</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_Redwing13.png" /></td><td>Redwing</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_Rook14.png" /></td><td>Rook</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_SongThrush15.png" /></td><td>Song Thrush</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_Sparrowhawk16.png" /></td><td>Sparrowhawk</td></tr><tr><td style="text-align: center;"><img src="legend/checklist_4_Swallow17.png" /></td><td>Swallow</td></tr></table>', layer: layer_checklist_4},
-            {label: '<img src="legend/TownBoundary_3.png" /> Town Boundary', layer: layer_TownBoundary_3},
-            {label: '<img src="legend/1kGrid_2.png" /> 1k Grid', layer: layer_1kGrid_2},
+            {label: '<img src="legend/TownBoundary_5.png" /> Town Boundary', layer: layer_TownBoundary_5},
+            {label: '<img src="legend/1kGrid_4.png" /> 1k Grid', layer: layer_1kGrid_4},
+            {label: '<img src="legend/2kGrid_3.png" /> 2k Grid', layer: layer_2kGrid_3},
+            {label: 'PROW<br /><table><tr><td style="text-align: center;"><img src="legend/PROW_2_BywayOpentoAllTraffic0.png" /></td><td>Byway Open to All Traffic</td></tr><tr><td style="text-align: center;"><img src="legend/PROW_2_CoastalFootpath1.png" /></td><td>Coastal Footpath</td></tr><tr><td style="text-align: center;"><img src="legend/PROW_2_PublicBridleway2.png" /></td><td>Public Bridleway</td></tr><tr><td style="text-align: center;"><img src="legend/PROW_2_PublicFootpath3.png" /></td><td>Public Footpath</td></tr><tr><td style="text-align: center;"><img src="legend/PROW_2_RestrictedByway4.png" /></td><td>Restricted Byway</td></tr></table>', layer: layer_PROW_2},
             {label: "Google Maps", layer: layer_GoogleMaps_1},
             {label: "Open Street Map", layer: layer_OpenStreetMap_0},]
         var lay = L.control.layers.tree(null, overlaysTree,{
@@ -566,83 +408,56 @@
             //openedSymbol: '&#8863; &#x1f5c1;',
             //collapseAll: 'Collapse all',
             //expandAll: 'Expand all',
-            collapsed: false, 
+            collapsed: true,
         });
         lay.addTo(map);
-		document.addEventListener("DOMContentLoaded", function() {
-            // set new Layers List height which considers toggle icon
-            function newLayersListHeight() {
-                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
-                if (layerScrollbarElement) {
-                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
-                    var originalHeight = layersListElement.style.height 
-                        || window.getComputedStyle(layersListElement).height;
-                    var newHeight = parseFloat(originalHeight) - 50;
-                    layersListElement.style.height = newHeight + 'px';
-                }
-            }
-            var isLayersListExpanded = true;
-            var controlLayersElement = document.querySelector('.leaflet-control-layers');
-            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
-            // toggle Collapsed/Expanded and apply new Layers List height
-            toggleLayerControl.addEventListener('click', function() {
-                if (isLayersListExpanded) {
-                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
-                } else {
-                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
-                }
-                isLayersListExpanded = !isLayersListExpanded;
-                newLayersListHeight()
-            });	
-			// apply new Layers List height if toggle layerstree
-			if (controlLayersElement) {
-				controlLayersElement.addEventListener('click', function(event) {
-					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
-					if (toggleLayerHeaderPointer) {
-						newLayersListHeight();
-					}
-				});
-			}
-            // Collapsed/Expanded at Start to apply new height
-            setTimeout(function() {
-                toggleLayerControl.click();
-            }, 10);
-            setTimeout(function() {
-                toggleLayerControl.click();
-            }, 10);
-            // Collapsed touch/small screen
-            var isSmallScreen = window.innerWidth < 650;
-            if (isSmallScreen) {
-                setTimeout(function() {
-                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
-                    isLayersListExpanded = !isLayersListExpanded;
-                }, 500);
-            }  
-        });       
         setBounds();
         var i = 0;
-        layer_1kGrid_2.eachLayer(function(layer) {
+        layer_2kGrid_3.eachLayer(function(layer) {
             var context = {
                 feature: layer.feature,
                 variables: {}
             };
-            layer.bindTooltip((layer.feature.properties['grid_ref'] !== null?String('<div style="color: #040400; font-size: 10pt; font-weight: bold; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['grid_ref']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_1kGrid_2'});
+            layer.bindTooltip((layer.feature.properties['grid_ref'] !== null?String('<div style="color: #323232; font-size: 10pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['grid_ref']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_2kGrid_3'});
             labels.push(layer);
             totalMarkers += 1;
               layer.added = true;
               addLabel(layer, i);
               i++;
         });
-        resetLabels([layer_1kGrid_2,layer_TownBoundary_3]);
+        var i = 0;
+        layer_1kGrid_4.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['grid_ref'] !== null?String('<div style="color: #040400; font-size: 10pt; font-weight: bold; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['grid_ref']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_1kGrid_4'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        map.addControl(new L.Control.Search({
+            layer: layer_1kGrid_4,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'grid_ref'}));
+        if (typeof url === 'undefined') {
+            document.getElementsByClassName('search-button')[0].className += ' fa fa-binoculars';
+        } else {
+            document.getElementsByClassName('search-button')[1].className += ' fa fa-binoculars';
+        }
+        resetLabels([layer_2kGrid_3,layer_1kGrid_4,layer_TownBoundary_5]);
         map.on("zoomend", function(){
-            resetLabels([layer_1kGrid_2,layer_TownBoundary_3]);
+            resetLabels([layer_2kGrid_3,layer_1kGrid_4,layer_TownBoundary_5]);
         });
         map.on("layeradd", function(){
-            resetLabels([layer_1kGrid_2,layer_TownBoundary_3]);
+            resetLabels([layer_2kGrid_3,layer_1kGrid_4,layer_TownBoundary_5]);
         });
         map.on("layerremove", function(){
-            resetLabels([layer_1kGrid_2,layer_TownBoundary_3]);
+            resetLabels([layer_2kGrid_3,layer_1kGrid_4,layer_TownBoundary_5]);
         });
-        </script>        
+        </script>
     </body>
 </html>
